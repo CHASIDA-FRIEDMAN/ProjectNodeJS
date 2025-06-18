@@ -24,6 +24,7 @@ export const JoiRecipeSchema = Joi.object({
     categories: Joi.array().items(Joi.string()) ,// לא חייב להיות ObjectId תקף
     time: Joi.number().min(1).required(),
     level: Joi.number().min(1).max(5).required(),
+    date: Joi.date().iso(),
     layers: Joi.array().items(
         Joi.object({
             description: Joi.string().required(),

@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { getBySearch,getById,getByTime,addRecipe,updateRecipe,deleteRecipe } from "../controllers/recipes.controller.js";
 import {auth,isAdmin} from "../middlewares/auth.middleware.js";
+import {optionalAuth} from "../middlewares/optionalAuth.middleware.js";
 
 const router = Router();
 
-router.get('/',auth, getBySearch);
+router.get('/', optionalAuth,getBySearch);
 
 router.get('/:id', auth, getById);
 
-router.get('/time/:time', auth, getByTime);
+router.get('/time/:time',optionalAuth, getByTime);
 
 router.post('/', auth, addRecipe);
 

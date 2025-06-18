@@ -7,12 +7,18 @@ import { getOrCreateCategories, addRecipeToCategories, removeRecipeFromCategorie
 export const getBySearch = async (req, res, next) => {
     const { search = '', limit = 10, page = 1 } = req.query;
     try {
-        const query = {
+        const baseQuery = {
             name: { $regex: search, $options: 'i' },
+        }
+        const query = req.user ? {
+            ...baseQuery,
             $or: [
                 { isprivate: false },
                 { createdBy: req.user._id }
             ]
+        } : {
+            ...baseQuery,
+            isprivate: false
         };
 
         const recipes = await Recipe.find(query)
@@ -28,7 +34,6 @@ export const getBySearch = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({ message: 'error fetching recipes', error: err });
     }
-
 }
 
 // --- קבלת מתכון לפי ID ---
@@ -52,9 +57,19 @@ export const getById = async (req, res, next) => {
 export const getByTime = async (req, res, next) => {
     try {
         const { time } = req.params;
-        const recipes = await Recipe.find({ time: { $lt: time } });
-        const visibleRecipes = recipes.filter(r => !r.isprivate || r.createdBy.toString() === req.user._id.toString());
-        res.status(200).json(visibleRecipes);
+        const query = req.user ? {
+            time: { $lt: Number(time) },
+            $or: [
+                { isprivate: false },
+                { createdBy: req.user._id }
+            ]
+        } : {
+            time: { $lt: Number(time) },
+            isprivate: false
+        };
+
+        const recipes = await Recipe.find(query);
+        res.status(200).json(recipes);
     } catch (error) {
         next({ message: error.message });
     }
