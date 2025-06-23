@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {getAllCategories,getCategoryWithRecipe,getAllCategoriesWithRecipes } from "../controllers/categories.controller.js";
+import {getAllCategories,getCategoryWithRecipes,getAllCategoriesWithRecipes } from "../controllers/categories.controller.js";
 
 const router = Router();
 
@@ -7,6 +7,6 @@ router.get("/", getAllCategories);
 
 router.get("/withRecipes", getAllCategoriesWithRecipes);
 
-router.get("/:value", getCategoryWithRecipe);
+router.get("/:value", getCategoryWithRecipes);
 
 export default router;

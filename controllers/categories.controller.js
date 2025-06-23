@@ -24,7 +24,7 @@ export const getAllCategoriesWithRecipes = async (req, res, next) => {
 }
 
 // --- קבלת קטגוריה לפי ID עם המתכונים שלה ---
-export const getCategoryWithRecipe = async (req, res, next) => {
+export const getCategoryWithRecipes = async (req, res, next) => {
     try {
         const { value } = req.params;
         let category;
