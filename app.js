@@ -17,7 +17,13 @@ const app = express();
 
 app.use(express.json()); // מאפשר לקרוא את גוף הבקשה כ-JSON
 app.use(express.urlencoded({ extended: true })); // מאפשר לקרוא את גוף הבקשה כ-URL Encoded
-app.use(cors()); // מאפשר קריאות בין דומיינים שונים
+// app.use(cors()); // מאפשר קריאות בין דומיינים שונים
+app.use(cors({
+  origin: 'http://localhost:4200',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 
 app.use('/users', usersRouter); // מפנה את כל הבקשות לנתיב /users ל-router של המשתמשים
 
