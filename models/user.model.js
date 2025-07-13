@@ -16,7 +16,7 @@ const userSchema = new Schema({
 
 export const generateToken = (user) => {
     const secretKey = process.env.JWT_SECRET || 'JWT_SECRET';
-    const token = sign({ _id: user._id, role: user.role }, secretKey, { expiresIn: '1h' });
+    const token = sign({ _id: user._id, role: user.role, username: user.username }, secretKey, { expiresIn: '1h' });
     return token;
 }
 

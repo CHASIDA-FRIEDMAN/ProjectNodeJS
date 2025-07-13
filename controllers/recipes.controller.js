@@ -5,6 +5,8 @@ import { getOrCreateCategories, addRecipeToCategories, removeRecipeFromCategorie
 
 // --- חיפוש מתכונים לפי טקסט ---
 export const getBySearch = async (req, res, next) => {
+    console.log('🔍 user ID מהטוקן:', req.user?._id);
+
     const { search = '', limit = 10, page = 1 } = req.query;
     try {
         const baseQuery = {
@@ -13,17 +15,21 @@ export const getBySearch = async (req, res, next) => {
         const query = req.user ? {
             ...baseQuery,
             $or: [
-                { isprivate: false },
-                { createdBy: req.user._id }
+                { isPrivate: false },
+                {
+                    createdBy: req.user?._id?.toString?.() || ''
+                }
             ]
         } : {
             ...baseQuery,
-            isprivate: false
+            isPrivate: false
         };
 
         const recipes = await Recipe.find(query)
             .limit(Number(limit))
             .skip((Number(page) - 1) * Number(limit));
+        console.log('🍲 מתכונים שהוחזרו:', recipes);
+
         const total = await Recipe.countDocuments(query);
         res.json({
             data: recipes,
@@ -40,11 +46,12 @@ export const getBySearch = async (req, res, next) => {
 export const getById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const recipe = await Recipe.findById(id);
+        const recipe = await Recipe.findById(id).populate('categories');
+
         if (!recipe) {
             return next({ status: 404, message: 'Recipe not found' });
         }
-        if (recipe.isprivate && recipe.createdBy.toString() !== req.user._id) {
+        if (recipe.isPrivate && recipe.createdBy.toString() !== req.user._id) {
             return next({ status: 403, message: 'Access denied: private recipe' });
         }
         res.status(200).json(recipe);
@@ -60,12 +67,14 @@ export const getByTime = async (req, res, next) => {
         const query = req.user ? {
             time: { $lt: Number(time) },
             $or: [
-                { isprivate: false },
-                { createdBy: req.user._id }
+                { isPrivate: false },
+                {
+                    createdBy: req.user?._id?.toString?.() || ''
+                }
             ]
         } : {
             time: { $lt: Number(time) },
-            isprivate: false
+            isPrivate: false
         };
 
         const recipes = await Recipe.find(query);
@@ -84,7 +93,7 @@ export const addRecipe = async (req, res, next) => {
             return next({ status: 400, message: error.details[0].message });
         }
         // חילוץ הנתונים מהבקשה
-        const { name, description, categories, time, level, date, layers, instructions, img, isprivate } = req.body;
+        const { name, description, categories, time, level, date, layers, instructions, img, isPrivate } = req.body;
 
         // יצירת מערך ייחודי של קטגוריות
         const categoryIds = await getOrCreateCategories(categories);
@@ -100,7 +109,7 @@ export const addRecipe = async (req, res, next) => {
             layers,
             instructions,
             img,
-            isprivate,
+            isPrivate,
             createdBy: req.user._id //  כאן משתמשים בטוקן
         });
 
@@ -157,7 +166,7 @@ export const updateRecipe = async (req, res, next) => {
             layers,
             instructions,
             img,
-            isprivate
+            isPrivate
         } = req.body;
 
         let allCategories = new Set(); // הוגדר מוקדם כדי לא להיתקל בשגיאה
@@ -196,7 +205,7 @@ export const updateRecipe = async (req, res, next) => {
         if (layers !== undefined) recipe.layers = layers;
         if (instructions !== undefined) recipe.instructions = instructions;
         if (img !== undefined) recipe.img = img;
-        if (isprivate !== undefined) recipe.isprivate = isprivate;
+        if (isPrivate !== undefined) recipe.isPrivate = isPrivate;
 
         // שמירה נוספת של המתכון
         // אם התעדכנו שדות נוספים חוץ מקטגוריות

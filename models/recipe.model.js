@@ -14,7 +14,7 @@ const recipeSchema = new Schema({
     }],
     instructions: { type: [String], required: true },
     img: { type: String },
-    isprivate: { type: Boolean, required: true },
+    isPrivate: { type: Boolean, required: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 })
 
@@ -33,7 +33,7 @@ export const JoiRecipeSchema = Joi.object({
     ),
     instructions: Joi.array().items(Joi.string().required()).required(),
     img: Joi.string().uri(), // אם את שומרת קישור
-    isprivate: Joi.boolean().required(),
+    isPrivate: Joi.boolean().required(),
 });
 
 export default model('Recipe', recipeSchema);

@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 // התחברות
 export const signin = async (req, res, next) => {
     try {
-        if(JoiUserSchema.signin.validate(req.body).error) {
+        if (JoiUserSchema.signin.validate(req.body).error) {
             return next({ status: 400, message: 'invalid data' });
         }
         // בוודאות הנתונים תקינים
@@ -25,7 +25,7 @@ export const signin = async (req, res, next) => {
             return next({ status: 401, message: 'invalid password' });
         }
         const token = generateToken(user);
-        res.status(201).json({ username: user.username, token });
+        res.status(201).json({ username: user.username, userId: user._id, token });
     } catch (err) {
         next({ message: err.message })
     }
@@ -33,8 +33,8 @@ export const signin = async (req, res, next) => {
 
 // הרשמה
 export const signup = async (req, res, next) => {
-    try{
-        if(JoiUserSchema.signup.validate(req.body).error) {
+    try {
+        if (JoiUserSchema.signup.validate(req.body).error) {
             return next({ status: 400, message: 'invalid data' });
         }
 
@@ -51,15 +51,15 @@ export const signup = async (req, res, next) => {
         // ניצור טוקן למשתמש החדש
         const token = generateToken(newUser);
         // נחזיר את הטוקן למשתמש
-        res.status(201).json({ username: newUser.username, token})
-     } catch (err) {
+        res.status(201).json({ username: newUser.username, userId: newUser._id, token })
+    } catch (err) {
         next({ message: err.message });
     }
 }
 
 // קבלת כל המשתמשים
 export const getAllUsers = async (req, res, next) => {
-    try{
+    try {
         const users = await User.find({}, '-password'); // לא מחזירים את הסיסמה
         res.status(200).json(users);
     } catch (err) {
